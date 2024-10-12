@@ -1,4 +1,4 @@
-package com.demo.route;
+package com.demo.Servlets;
 
 import com.demo.entity.User;
 import com.demo.repository.UserRepository;
