@@ -1,5 +1,3 @@
-<%@ page import="java.util.List" %>
-<%@ page import="com.demo.entity.User" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
@@ -50,7 +48,9 @@
 </head>
 <body>
 <div class="container">
-    <h1 class="mt-5">Welcome to DevSync</h1>
+    <c:if test="${not empty sessionScope.user.name}">
+        <h2>Hello, <c:out value="${sessionScope.user.name}" />!</h2>
+    </c:if>
     <h2>All Users</h2>
     <table class="table">
         <thead>
@@ -70,14 +70,18 @@
                         <td><c:out value="${user.email}" /></td>
                         <td><c:out value="${user.adresse}" /></td>
                         <td><c:out value="${user.manager ? 'Manager' : 'Not Manager'}" /></td>
-                        <td>
-                        <button class="btn btn-primary" style="background-color: #007bff; border-color: #007bff; padding: 0.375rem 0.75rem;">
-                            <a href="update-user?email=${user.email}" style="color: white; text-decoration: none;">Update</a>
-                        </button>
-                        <button class="btn btn-danger" style="background-color: #dc3545; border-color: #dc3545; padding: 0.375rem 0.75rem;">
-                            <a href="delete-user?email=${user.email}" style="color: white; text-decoration: none;">Delete</a>
-                        </button>
-                        </td>
+                        <c:if test="${not empty sessionScope.user.manager}">
+                            <c:if test="${sessionScope.user.manager eq 'true'}">
+                                <td>
+                                <button class="btn btn-primary" style="background-color: #007bff; border-color: #007bff; padding: 0.375rem 0.75rem;">
+                                    <a href="update-user?email=${user.email}" style="color: white; text-decoration: none;">Update</a>
+                                </button>
+                                <button class="btn btn-danger" style="background-color: #dc3545; border-color: #dc3545; padding: 0.375rem 0.75rem;">
+                                    <a href="delete-user?email=${user.email}" style="color: white; text-decoration: none;">Delete</a>
+                                </button>
+                                </td>
+                            </c:if>
+                        </c:if>
                     </tr>
                 </c:forEach>
             </c:when>
@@ -89,11 +93,20 @@
         </c:choose>
         </tbody>
     </table>
-    <button class="btn btn-primary mt-3">
-        <a href="add">
-        Add New User
-        </a>
-    </button>
+    <c:if test="${not empty sessionScope.user.manager}">
+        <c:if test="${sessionScope.user.manager eq 'true'}">
+            <a href="add">
+                <button class="btn btn-primary mt-3">
+                Add New User
+                </button>
+            </a>
+        </c:if>
+    </c:if>
+
+        <button class="btn btn-primary mt-3" onclick="location.href='/Task/display-All-Tasks'">
+            Go to Tasks
+        </button>
+
 </div>
 </body>
 </html>

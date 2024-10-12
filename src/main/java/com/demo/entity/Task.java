@@ -1,8 +1,11 @@
 package com.demo.entity;
+import com.demo.convert.LocalDateTimeAttributeConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -26,7 +29,8 @@ public class Task {
     private Date creationDate;
 
     @Column(nullable = false)
-    private Date dueDate;
+    @Convert(converter = LocalDateTimeAttributeConverter.class)
+    private LocalDateTime dueDate;
 
     @Column(nullable = false)
     private Boolean completed = false;
@@ -50,12 +54,13 @@ public class Task {
     public Task() {
     }
 
-    public Task(String title, String description, Date creationDate, Date dueDate, Boolean completed) {
+    public Task(String title, String description, Date creationDate, LocalDateTime dueDate, User assignedTo , User createdBy) {
         this.title = title;
         this.description = description;
         this.creationDate = creationDate;
         this.dueDate = dueDate;
-        this.completed = completed;
+        this.assignedTo = assignedTo;
+        this.createdBy = createdBy;
     }
 
 }
