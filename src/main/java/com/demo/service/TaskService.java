@@ -85,7 +85,7 @@ public class TaskService {
         Task task = new Task();
         task.setTitle(title);
         task.setDescription(description);
-        task.setCreationDate(new Date());
+        task.setCreationDate(LocalDateTime.now());
         task.setDueDate(dueDate);
         task.setAssignedTo(new User(assignedToId));
         task.setCreatedBy(new User(createdById));
