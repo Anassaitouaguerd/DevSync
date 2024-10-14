@@ -1,5 +1,6 @@
-<!DOCTYPE html>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -189,11 +190,6 @@
         </div>
       </c:if>
     </c:if>
-
-    <div class="form-group" style="display: none">
-      <label for="createdBy">Created By</label>
-      <input type="number" id="createdBy" name="createdBy" value="${sessionScope.user.id}" required>
-    </div>
     <div class="form-group">
       <label>Tags</label>
       <div class="multi-select-wrapper">
@@ -216,10 +212,6 @@
           </c:choose>
         </div>
       </div>
-    </div>
-    <div class="form-group">
-      <label for="creationDate">Creation Date</label>
-      <input type="date" id="creationDate" name="creationDate" required>
     </div>
     <button type="submit" class="btn">Add Task</button>
   </form>
@@ -270,40 +262,41 @@
 
     let form = document.querySelector('form');
     form.addEventListener('submit', function(e) {
-      e.preventDefault(); // Prevent the default form submission
+      e.preventDefault();
 
-      // Create a FormData object
+      const selectedTags = Array.from(checkboxes).filter(cb => cb.checked);
+      if (selectedTags.length < 2) {
+        alert('Please select at least two tags');
+        return;
+      }
+
       const formData = new FormData(form);
 
-      // Get all selected tags
-      const selectedTag = [];
-      checkboxes.forEach(function(checkbox) {
-        if (checkbox.checked) {
-          selectedTag.push(checkbox.value);
-        }
-      });
+      // Ensure the due date is not more than 3 days in the future
+      const dueDate = new Date(formData.get('dueDate'));
+      const maxDueDate = new Date();
+      maxDueDate.setDate(maxDueDate.getDate() + 3);
+      if (dueDate > maxDueDate) {
+        alert('Due date cannot be more than 3 days in the future');
+        return;
+      }
 
-
-      // Send the form data using AJAX
       fetch(form.action, {
         method: form.method,
         body: formData,
       })
               .then(response => {
                 if (!response.ok) {
-                  throw new Error('Network response was not ok');
+                  return response.text().then(text => { throw new Error(text) });
                 }
                 return window.location.href = '/Task/display-All-Tasks';
               })
               .then(data => {
                 console.log('Success:', data);
-                // Handle successful submission
-                // Change the URL to a success page or the task list page
-                // window.location.href = '/tasks'; // Replace with your desired URL
               })
               .catch(error => {
                 console.error('Error:', error);
-                // Handle errors (e.g., show an error message)
+                alert(error.message);
               });
     });
   });
