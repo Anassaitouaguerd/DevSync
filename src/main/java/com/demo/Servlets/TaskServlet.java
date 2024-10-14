@@ -21,29 +21,44 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
 @MultipartConfig
 @WebServlet(name = "TaskServlet", value = "/Task/*")
 public class TaskServlet extends HttpServlet {
+    private TaskService taskService;
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        taskService = new TaskService();
+    }
+
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String pathInfo = request.getPathInfo();
         response.getWriter().println(pathInfo);
+        List<Tag> tags = new TagService().displayTags();
         switch (pathInfo) {
             case "/display-All-Tasks":
-                List<Task> tasks = new TaskService().displayTasks();
+                Object userObj = request.getSession().getAttribute("user");
+                User user = (User) userObj;
+                List<Task> tasks = taskService.displayTasks(user);
                 request.setAttribute("tasksList", tasks);
                 request.getRequestDispatcher("/Tasks/GestionTask.jsp").forward(request, response);
                 break;
             case "/add":
-                List<Tag> tags = new TagService().displayTags();
                 List<User> users = new UserService().displayUsers();
                 request.setAttribute("tagsList", tags);
                 request.setAttribute("usersList", users);
                 request.getRequestDispatcher("/Tasks/AddTask.jsp").forward(request, response);
                 break;
-            case "/update":
-                request.getRequestDispatcher("/UpdateTask.jsp").forward(request, response);
+            case "/updateTask":
+                String taskId = request.getParameter("id");
+                Task task = taskService.getTaskById(Long.parseLong(taskId));
+                List<User> usersList = new UserService().displayUsers();
+                request.setAttribute("task", task);
+                request.setAttribute("usersList", usersList);
+                request.setAttribute("tagsList", new TagService().displayTags());
+                request.getRequestDispatcher("/Tasks/UpdateTask.jsp").forward(request, response);
                 break;
             case "/delete":
                 request.getRequestDispatcher("/DeleteTask.jsp").forward(request, response);
@@ -54,29 +69,98 @@ public class TaskServlet extends HttpServlet {
     }
 
     @Override
-    public void doPost(HttpServletRequest req, HttpServletResponse res) {
+    public void doPost(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        String pathInfo = req.getPathInfo();
         res.setContentType("application/json");
+        switch (pathInfo) {
+            case "/add":
+                handleAddTask(req, res);
+                break;
+            case "/update":
+                handleUpdateTask(req, res);
+                break;
+            case "/complete":
+                handleCompleteTask(req, res);
+                break;
+            case "/delete":
+                handleDeleteTask(req, res);
+                break;
+        }
+    }
+
+    private void handleAddTask(HttpServletRequest req, HttpServletResponse res) throws IOException {
         String title = req.getParameter("title");
         String description = req.getParameter("description");
         String dueDate = req.getParameter("dueDate");
 
         String assignedTo;
+        User currentUser = (User) req.getSession().getAttribute("user");
         if (req.getParameter("assignedTo") != null) {
             assignedTo = req.getParameter("assignedTo");
-        } else {
-            Object userObj = req.getSession().getAttribute("user");
-            if (userObj != null && userObj instanceof User) {
-                User user = (User) userObj;
-                assignedTo = String.valueOf(user.getId());
-            } else {
-                assignedTo = "default_id";
+            if (!assignedTo.equals(currentUser.getId().toString())) {
+                res.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                res.getWriter().write("You can only assign additional tasks to yourself");
+                return;
             }
+        } else {
+            assignedTo = currentUser.getId().toString();
         }
-        String createdBy = req.getParameter("createdBy");
-            String[] tagsArray = req.getParameterValues("Tag");
+
+        String createdBy = currentUser.getId().toString();
+        String[] tagsArray = req.getParameterValues("Tag");
         List<String> tags = tagsArray != null ? Arrays.asList(tagsArray) : new ArrayList<>();
-        new TaskService().createTask(title, description, LocalDateTime.parse(dueDate), Long.parseLong(assignedTo), Long.parseLong(createdBy),tags);
-        res.setStatus(HttpServletResponse.SC_CREATED);
+
+        try {
+            taskService.createTask(title, description, LocalDateTime.parse(dueDate), Long.parseLong(assignedTo), Long.parseLong(createdBy), tags);
+            res.setStatus(HttpServletResponse.SC_CREATED);
+        } catch (IllegalArgumentException e) {
+            res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            res.getWriter().write(e.getMessage());
+        }
     }
 
+    private void handleUpdateTask(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        String taskId = req.getParameter("id");
+        String title = req.getParameter("title");
+        String description = req.getParameter("description");
+        String dueDate = req.getParameter("dueDate");
+        User currentUser = (User) req.getSession().getAttribute("user");
+        String assignedTo = req.getParameter("assignedToUP");
+        if (assignedTo == null) {
+            assignedTo = currentUser.getId().toString();
+        }
+        String[] tagsArray = req.getParameterValues("Tag");
+        List<String> tags = tagsArray != null ? Arrays.asList(tagsArray) : new ArrayList<>();
+
+        try {
+            taskService.updateTask(Long.parseLong(taskId), title, description, LocalDateTime.parse(dueDate), Long.parseLong(assignedTo), currentUser.getId(), tags);
+            res.setStatus(HttpServletResponse.SC_OK);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            res.getWriter().write(e.getMessage());
+        }
+    }
+
+    private void handleCompleteTask(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        String taskId = req.getParameter("id");
+        try {
+            taskService.markTaskAsCompleted(Long.parseLong(taskId));
+            res.setStatus(HttpServletResponse.SC_OK);
+        } catch (IllegalArgumentException e) {
+            res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            res.getWriter().write(e.getMessage());
+        }
+    }
+
+    private void handleDeleteTask(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        String taskId = req.getParameter("id");
+        User currentUser = (User) req.getSession().getAttribute("user");
+        try {
+            taskService.deleteTask(Long.parseLong(taskId), currentUser.getId());
+            res.setStatus(HttpServletResponse.SC_OK);
+        } catch (IllegalStateException e) {
+            res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            res.getWriter().write(e.getMessage());
+        }
+    }
 }
