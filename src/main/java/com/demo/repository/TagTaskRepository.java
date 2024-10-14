@@ -20,4 +20,19 @@ public class TagTaskRepository {
             em.close();
         }
     }
+    public void deleteTagTask(Long taskId) {
+        EntityManager em = JPAUtil.getEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.createNativeQuery("DELETE FROM task_tags WHERE task_id = ?")
+              .setParameter(1, taskId)
+                    .executeUpdate();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw new RuntimeException("Failed to delete tag-task", e);
+        } finally {
+            em.close();
+        }
+    }
 }
