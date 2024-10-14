@@ -103,6 +103,21 @@ public class UserRepository implements UserInterface {
         }
     }
 
+    public User find(String email) {
+        EntityManager em = JPAUtil.getEntityManager();
+        try {
+            return em.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class)
+                    .setParameter("email", email)
+                    .getSingleResult();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error fetching user: {0}", e.getMessage());
+            return null;
+        } finally {
+            em.close();
+        }
+    }
+
+
     @Override
 public Map<String, Object> findUserByEmail(String email) {
     EntityManager em = JPAUtil.getEntityManager();

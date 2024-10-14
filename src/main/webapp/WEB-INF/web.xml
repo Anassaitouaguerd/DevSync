@@ -8,18 +8,7 @@
     <display-name>DevSync Web Application</display-name>
 
     <welcome-file-list>
-        <welcome-file>index.jsp</welcome-file>
+        <welcome-file>Auth/Login.jsp</welcome-file>
     </welcome-file-list>
-
-    <!-- The @WebServlet annotation should handle this, but including it doesn't hurt -->
-    <servlet>
-        <servlet-name>ExampleServlet</servlet-name>
-        <servlet-class>com.demo.service.UserService</servlet-class>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>ExampleServlet</servlet-name>
-        <url-pattern>/ExampleServlet</url-pattern>
-    </servlet-mapping>
 
 </web-app>

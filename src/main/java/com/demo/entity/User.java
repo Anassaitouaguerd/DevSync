@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Setter
 @Getter
 @Entity
@@ -29,8 +31,17 @@ public class User {
     @Column(nullable = true, unique = false)
     private Boolean manager = false;
 
+    @OneToMany(mappedBy = "createdBy")
+    private List<Task> createdTasks;
+
+    @OneToMany(mappedBy = "assignedTo")
+    private List<Task> assignedTasks;
+
     // Constructors
     public User() {}
+    public User(Long id) {
+        this.id = id;
+    }
 
     public User(String name, String email , String password, String adresse , Boolean manager) {
         this.name = name;
