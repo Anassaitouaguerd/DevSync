@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -26,6 +28,12 @@ public class Token {
 
     @Column(nullable = false)
     private String type;
+
+    @Column(nullable = false)
+    private int count = 1;
+
+    @Column(nullable = false)
+    private LocalDateTime creationDate = LocalDateTime.now();
 
     @Column(nullable = false)
     private String status = "active";
