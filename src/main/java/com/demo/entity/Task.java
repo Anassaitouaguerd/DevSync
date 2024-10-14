@@ -26,7 +26,7 @@ public class Task {
     private String description;
 
     @Column(nullable = false)
-    private Date creationDate;
+    private LocalDateTime creationDate;
 
     @Column(nullable = false)
     @Convert(converter = LocalDateTimeAttributeConverter.class)
@@ -54,7 +54,7 @@ public class Task {
     public Task() {
     }
 
-    public Task(String title, String description, Date creationDate, LocalDateTime dueDate, User assignedTo , User createdBy) {
+    public Task(String title, String description, LocalDateTime creationDate, LocalDateTime dueDate, User assignedTo , User createdBy) {
         this.title = title;
         this.description = description;
         this.creationDate = creationDate;
