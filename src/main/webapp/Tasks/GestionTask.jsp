@@ -128,8 +128,9 @@
                         <td><c:out value="${task.createdBy.name}" /></td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn btn-update" type="button" onclick="location.href='updateTask.jsp?id=${task.id}'">Update</button>
-                                <button class="btn btn-delete" type="button" onclick="location.href='deleteTask.jsp?id=${task.id}'">Delete</button>
+                                <button class="btn btn-update" type="button" onclick="location.href='updateTask?id=${task.id}'">Update</button>
+                                <button class="btn btn-delete" type="button" onclick="deleteTask(${task.id})">Delete</button>
+                                <button class="btn btn-complete" type="button" onclick="completeTask(${task.id})">Complete</button>
                             </div>
                         </td>
                     </tr>
@@ -144,5 +145,48 @@
         </tbody>
     </table>
 </div>
+<script>
+    function deleteTask(taskId) {
+        if (confirm('Are you sure you want to delete this task?')) {
+            fetch('/Task/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'id=' + taskId
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => { throw new Error(text) });
+                    }
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert(error.message);
+                });
+        }
+    }
+
+    function completeTask(taskId) {
+        fetch('/Task/complete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'id=' + taskId
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(text) });
+                }
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(error.message);
+            });
+    }
+</script>
 </body>
 </html>
