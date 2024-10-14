@@ -48,6 +48,7 @@
 </head>
 <body>
 <div class="container">
+    page
     <c:if test="${not empty sessionScope.user.name}">
         <h2>Hello, <c:out value="${sessionScope.user.name}" />!</h2>
     </c:if>
