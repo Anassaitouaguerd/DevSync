@@ -6,6 +6,9 @@ import com.demo.util.JPAUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 public class TokenRepository {
     public void createToken(Token token) {
         EntityManager em = JPAUtil.getEntityManager();
@@ -44,6 +47,17 @@ public class TokenRepository {
         } catch (Exception e) {
             em.getTransaction().rollback();
             throw new RuntimeException("Failed to update token", e);
+        } finally {
+            em.close();
+        }
+    }
+    public List<Token> getTokensForUnansweredRequests() {
+        EntityManager em = JPAUtil.getEntityManager();
+        try {
+            LocalDateTime twelveHoursAgo = LocalDateTime.now().minusHours(12);
+            return em.createQuery("SELECT t FROM Token t WHERE t.type = 'modification' AND t.creationDate < :twelveHoursAgo AND t.status = 'pending'", Token.class)
+                    .setParameter("twelveHoursAgo", twelveHoursAgo)
+                    .getResultList();
         } finally {
             em.close();
         }
