@@ -50,5 +50,12 @@ public class User {
         this.adresse = adresse;
         this.manager = manager;
     }
+    public User(Long id ,String name, String email , String password, String adresse , Boolean manager) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.adresse = adresse;
+        this.manager = manager;
+    }
 
 }
