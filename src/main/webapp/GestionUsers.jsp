@@ -48,7 +48,6 @@
 </head>
 <body>
 <div class="container">
-    page
     <c:if test="${not empty sessionScope.user.name}">
         <h2>Hello, <c:out value="${sessionScope.user.name}" />!</h2>
     </c:if>
@@ -96,11 +95,16 @@
     </table>
     <c:if test="${not empty sessionScope.user.manager}">
         <c:if test="${sessionScope.user.manager eq 'true'}">
+            <div style="display: flex ;" >
             <a href="add">
                 <button class="btn btn-primary mt-3">
                 Add New User
                 </button>
             </a>
+            <button class="btn btn-primary mt-3" onclick="location.href='/Dashboard/'">
+                Go to Dashboard
+            </button>
+            </div>
         </c:if>
     </c:if>
 
