@@ -51,6 +51,9 @@ public class Task {
     @JoinColumn(name = "createdBy")
     private User createdBy;
 
+    @Column(nullable = false)
+    private String status = "active";
+
     public Task() {
     }
 
