@@ -17,7 +17,7 @@ public class TokenService {
         this.userRepository = new UserRepository();
     }
 
-    private String generateToken(){
+    private String generateToken() {
         return RandomStringUtils.randomAlphanumeric(32);
     }
 
@@ -49,15 +49,11 @@ public class TokenService {
         return true;
     }
 
-    public void deleteToken() {
-        // Delete a token
+    public Long getTokenCount() {
+        return tokenRepository.getTokenCount();
     }
 
-    public void updateToken() {
-        // Update a token
-    }
-
-    public void findToken() {
-        // Find a token
+    public Long getUsedTokenCount() {
+        return tokenRepository.getUsedTokenCount();
     }
 }

@@ -143,7 +143,11 @@
             </c:otherwise>
         </c:choose>
         </tbody>
+
     </table>
+    <c:if test="${not empty message}">
+            <p id="messageWait" style="display: none">${message}</p>
+    </c:if>
 </div>
 <script>
     function deleteTask(taskId) {
@@ -187,6 +191,11 @@
                 alert(error.message);
             });
     }
+
+        let messageWait = document.getElementById('messageWait');
+        if (messageWait) {
+            alert(messageWait.textContent);
+        }
 </script>
 </body>
 </html>

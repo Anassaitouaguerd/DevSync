@@ -5,6 +5,7 @@ import com.demo.entity.User;
 import com.demo.interfaces.TaskInterface;
 import com.demo.util.JPAUtil;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 
 import java.util.List;
 
@@ -38,6 +39,20 @@ public class TaskRepository implements TaskInterface {
         }
     }
 
+    public void udapteStatusTask(Task task) {
+        EntityManager em = JPAUtil.getEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.merge(task);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw new RuntimeException("Failed to update task", e);
+        } finally {
+            em.close();
+        }
+    }
+
     public void deleteTask(Long taskId) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
@@ -58,6 +73,16 @@ public class TaskRepository implements TaskInterface {
     public List<Task> displayTasks(User user) {
         try (EntityManager em = JPAUtil.getEntityManager()) {
             return em.createQuery("SELECT t FROM Task t WHERE t.assignedTo.id = :userId OR t.createdBy.id = :userId", Task.class)
+                    .setParameter("userId", user.getId())
+                    .getResultList();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to display tasks", e);
+        }
+    }
+
+    public List<Task> displayTasksHasPanding(User user){
+        try (EntityManager em = JPAUtil.getEntityManager()) {
+            return em.createQuery("SELECT t FROM Task t WHERE t.createdBy.id = :userId AND t.status = 'pending'", Task.class)
                     .setParameter("userId", user.getId())
                     .getResultList();
         } catch (Exception e) {
@@ -105,4 +130,22 @@ public class TaskRepository implements TaskInterface {
             throw new RuntimeException("Failed to get tasks by assigned user", e);
         }
     }
+
+    public Long getTaskCount(){
+        try (EntityManager em = JPAUtil.getEntityManager()) {
+            return em.createQuery("SELECT COUNT(t) FROM Task t", Long.class)
+                    .getSingleResult();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to get task count", e);
+        }
+    }
+
+    public Long getCompleteTaskCount(){
+        try(EntityManager em = JPAUtil.getEntityManager()){
+            return em.createQuery("SELECT COUNT(t) FROM Task t where t.completed = true", Long.class)
+                    .getSingleResult();
+        }
+    }
+
+
 }

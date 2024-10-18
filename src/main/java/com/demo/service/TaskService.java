@@ -103,4 +103,28 @@ public class TaskService {
         task.setCompleted(true);
         taskRepository.updateTask(task);
     }
+
+    public void acceptInvitation(Long taskId , Long userId) {
+        Task task = taskRepository.getTaskById(taskId);
+        task.setStatus("accepted");
+        taskRepository.udapteStatusTask(task);
+        tokenService.useToken(userId , "remplacer");
+    }
+
+    public List<Task> displayTasksHasPanding(User user) {
+        return taskRepository.displayTasksHasPanding(user);
+    }
+
+    public void updateStatus(Task task) {
+        task.setStatus("pending");
+        taskRepository.udapteStatusTask(task);
+    }
+
+    public Long getTaskCount() {
+        return taskRepository.getTaskCount();
+    }
+
+    public Long getCompleteTaskCount() {
+        return taskRepository.getCompleteTaskCount();
+    }
 }

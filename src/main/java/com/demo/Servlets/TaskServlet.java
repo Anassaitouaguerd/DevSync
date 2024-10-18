@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @MultipartConfig
 @WebServlet(name = "TaskServlet", value = "/Task/*")
@@ -54,6 +55,16 @@ public class TaskServlet extends HttpServlet {
             case "/updateTask":
                 String taskId = request.getParameter("id");
                 Task task = taskService.getTaskById(Long.parseLong(taskId));
+
+                Object userObject = request.getSession().getAttribute("user");
+                User user1 = (User) userObject;
+                if(!Objects.equals(task.getCreatedBy().getId(), user1.getId())) {
+                    taskService.updateStatus(task);
+                    request.setAttribute("message", "Your invitation has ben sent to manager to update the task please wait ... ");
+                    request.getRequestDispatcher("/Tasks/GestionTask.jsp").forward(request, response);
+
+                    return;
+                }
                 List<User> usersList = new UserService().displayUsers();
                 request.setAttribute("task", task);
                 request.setAttribute("usersList", usersList);
@@ -97,11 +108,6 @@ public class TaskServlet extends HttpServlet {
         User currentUser = (User) req.getSession().getAttribute("user");
         if (req.getParameter("assignedTo") != null) {
             assignedTo = req.getParameter("assignedTo");
-            if (!assignedTo.equals(currentUser.getId().toString())) {
-                res.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                res.getWriter().write("You can only assign additional tasks to yourself");
-                return;
-            }
         } else {
             assignedTo = currentUser.getId().toString();
         }
