@@ -33,7 +33,7 @@ public class Token {
     private int count = 1;
 
     @Column(nullable = false)
-    private LocalDateTime creationDate = LocalDateTime.now();
+    private LocalDateTime creationDate;
 
     @Column(nullable = false)
     private String status = "active";
@@ -42,5 +42,6 @@ public class Token {
         this.token = token;
         this.user = user;
         this.type = type;
+        this.creationDate = LocalDateTime.now();
     }
 }
