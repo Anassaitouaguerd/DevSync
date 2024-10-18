@@ -62,4 +62,24 @@ public class TokenRepository {
             em.close();
         }
     }
+
+    public Long getTokenCount() {
+        EntityManager em = JPAUtil.getEntityManager();
+        try {
+            return em.createQuery("SELECT COUNT(t) FROM Token t", Long.class)
+                    .getSingleResult();
+        } finally {
+            em.close();
+        }
+    }
+
+    public Long getUsedTokenCount(){
+        EntityManager em = JPAUtil.getEntityManager();
+        try {
+            return em.createQuery("SELECT COUNT(t) FROM Token t WHERE t.status = 'used'", Long.class)
+                    .getSingleResult();
+        } finally {
+            em.close();
+        }
+    }
 }
